@@ -1,0 +1,334 @@
+/* Svelte Chicago Kayak Race — plain CSS, Chicago-flag palette (white, light
+   blue, red). Deliberately kept simple; richer visual polish is a follow-up. */
+
+:root {
+	--white: #ffffff;
+	--sky: #eef8fd;
+	--blue: #41b6e6; /* Chicago flag light blue */
+	--blue-deep: #1a8cc0;
+	--river-top: #5bc2ea;
+	--river-bottom: #2a9bd0;
+	--red: #e4002b; /* Chicago flag red */
+	--ink: #0b2a3a;
+	--muted: #6b8494;
+	--lane-line: rgba(255, 255, 255, 0.5);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+body {
+	font-family:
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		sans-serif;
+	color: var(--ink);
+	background: var(--sky);
+}
+
+main {
+	height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+button {
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+	border: none;
+	border-radius: 10px;
+	padding: 0.75rem 1.1rem;
+	background: var(--blue-deep);
+	color: white;
+}
+button:disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+
+.loading {
+	display: grid;
+	place-items: center;
+	height: 100dvh;
+	font-size: 1.25rem;
+	color: var(--blue-deep);
+}
+
+.reconnecting {
+	position: fixed;
+	inset: 0 0 auto 0;
+	z-index: 50;
+	text-align: center;
+	padding: 0.4rem;
+	background: var(--red);
+	color: white;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+/* ------------------------------ Lobby ------------------------------ */
+.lobby {
+	width: 100%;
+	max-width: 560px;
+	margin: 0 auto;
+	padding: 2rem 1.25rem;
+}
+.lobby h1 {
+	margin: 0 0 0.25rem;
+	font-size: 1.6rem;
+}
+.lobby .tagline {
+	margin: 0 0 1.5rem;
+	color: var(--muted);
+}
+.lobby kbd {
+	background: var(--blue);
+	color: white;
+	border-radius: 5px;
+	padding: 0 0.4rem;
+	font-family: inherit;
+}
+.roster h2 {
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--blue-deep);
+}
+.roster ul {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 1.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.roster li {
+	background: white;
+	border: 2px solid var(--blue);
+	border-radius: 999px;
+	padding: 0.3rem 0.8rem;
+}
+.roster li.mine {
+	background: var(--blue);
+	color: white;
+}
+.roster .empty {
+	color: var(--muted);
+	font-style: italic;
+}
+.join-form {
+	display: flex;
+	gap: 0.5rem;
+}
+.join-form input {
+	flex: 1;
+	padding: 0.75rem;
+	font-size: 1rem;
+	border: 2px solid var(--blue);
+	border-radius: 10px;
+}
+.ready {
+	margin-top: 0.5rem;
+}
+.start-btn {
+	margin-top: 1rem;
+}
+
+/* ---------------------------- Race screen ---------------------------- */
+.race-screen {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+.river-wrap {
+	position: relative;
+	flex: 1;
+	min-height: 0;
+}
+
+.river {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	background: linear-gradient(to top, var(--river-bottom), var(--river-top));
+	overflow: hidden;
+}
+.lane {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	border-right: 2px dashed var(--lane-line);
+}
+.lane:last-child {
+	border-right: none;
+}
+.lane.mine {
+	background: rgba(255, 255, 255, 0.14);
+}
+
+.finish-line {
+	position: absolute;
+	inset: 0 0 auto 0;
+	z-index: 5;
+	height: 1.6rem;
+	background: repeating-linear-gradient(90deg, #fff 0 10px, #111 10px 20px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.finish-line span {
+	background: var(--red);
+	color: white;
+	font-weight: 800;
+	font-size: 0.7rem;
+	padding: 0.1rem 0.5rem;
+	border-radius: 4px;
+}
+
+.kayak {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	transition: bottom 80ms linear;
+	will-change: bottom;
+}
+.kayak .boat {
+	font-size: clamp(1.2rem, 4vw, 2rem);
+	line-height: 1;
+}
+.kayak .tag {
+	max-width: 9ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.7rem;
+	font-weight: 700;
+	color: var(--ink);
+	background: rgba(255, 255, 255, 0.85);
+	border-radius: 4px;
+	padding: 0 0.25rem;
+}
+.lane.mine .kayak .tag {
+	background: var(--red);
+	color: white;
+}
+.kayak.done .boat {
+	filter: drop-shadow(0 0 6px gold);
+}
+
+/* overlays drawn on top of the river (countdown + winner) */
+.overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 10;
+	display: grid;
+	place-items: center;
+	pointer-events: none;
+	text-align: center;
+}
+.overlay.countdown {
+	font-size: clamp(4rem, 18vw, 10rem);
+	font-weight: 900;
+	color: white;
+	text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
+.overlay.winner {
+	font-size: clamp(1.5rem, 6vw, 3.5rem);
+	font-weight: 900;
+	color: white;
+	background: rgba(11, 42, 58, 0.55);
+}
+
+/* dock = phone status + paddle controls */
+.dock {
+	flex-shrink: 0;
+	width: 100%;
+	max-width: 680px;
+	margin: 0 auto;
+}
+.phone-status {
+	display: none;
+}
+.new-race {
+	display: block;
+	margin: 0.75rem auto;
+	background: var(--red);
+}
+
+.pads {
+	display: flex;
+	gap: 0.75rem;
+	padding: 0.75rem;
+}
+.pad {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.2rem;
+	font-size: 2rem;
+	padding: 1.1rem;
+	border-radius: 14px;
+	background: var(--blue-deep);
+	color: white;
+	touch-action: manipulation;
+	user-select: none;
+	-webkit-user-select: none;
+}
+.pad small {
+	font-size: 0.8rem;
+	letter-spacing: 0.1em;
+}
+.pad.flash {
+	background: var(--red);
+}
+.pad:disabled {
+	opacity: 0.4;
+}
+
+/* --------- responsive: on phones, a player's screen IS the controller ------- */
+@media (max-width: 640px) {
+	.race-screen.playing .river-wrap {
+		display: none; /* the big race lives on the projector */
+	}
+	.race-screen.playing {
+		justify-content: center;
+	}
+	.race-screen.playing .phone-status {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 1rem;
+		text-align: center;
+	}
+	.race-screen.playing .phone-status .big {
+		font-size: 2.5rem;
+		font-weight: 900;
+		color: var(--blue-deep);
+	}
+	.race-screen.playing .phone-status .hint {
+		color: var(--muted);
+	}
+	.pad {
+		font-size: 2.5rem;
+		min-height: 38vh;
+	}
+}
