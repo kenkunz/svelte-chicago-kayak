@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { raceState, joinRace, startRace, paddle, newRace } from './race.remote';
+	import { raceState, joinRace, leaveRace, startRace, paddle, newRace } from './race.remote';
 	import { getPlayerId } from '$lib/identity';
 	import type { Side } from '$lib/types';
 	import Lobby from '$lib/Lobby.svelte';
@@ -15,11 +15,22 @@
 	// while the page is mounted and is torn down automatically when it isn't.
 	const race = raceState();
 
+	// Reading `race.connected` inside the awaited markup below would lose reactivity
+	// (it'd be read after `await race`), so we derive it up here instead. `.current`
+	// is the last received value — defined once we've connected at least once (and
+	// retained during a reconnect), so the banner doesn't flash on the first load.
+	const reconnecting = $derived(race.current != null && !race.connected);
+
 	// Fire-and-forget: never await in the tap handler, or strokes would queue up.
 	function handlePaddle(side: Side) {
 		paddle({ playerId, side });
 	}
 </script>
+
+{#if reconnecting}
+	<!-- `.connected` + auto-reconnect are built in; we wrote zero reconnection logic. -->
+	<div class="reconnecting">Reconnecting…</div>
+{/if}
 
 <svelte:boundary>
 	{#snippet failed(error: unknown, reset: () => void)}
@@ -36,17 +47,13 @@
 	{@const me = state.players.find((p) => p.id === playerId)}
 
 	<main>
-		{#if !race.connected}
-			<!-- We wrote zero reconnection logic; `.connected` + auto-reconnect are built in. -->
-			<div class="reconnecting">Reconnecting…</div>
-		{/if}
-
 		{#if state.phase === 'lobby'}
 			<Lobby
 				{state}
 				{me}
 				onJoin={(name) => joinRace({ playerId, name })}
 				onStart={() => startRace()}
+				onLeave={() => leaveRace({ playerId })}
 			/>
 		{:else}
 			<div class="race-screen" class:playing={!!me}>

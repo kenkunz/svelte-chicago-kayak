@@ -79,6 +79,11 @@ export const joinRace = command('unchecked', async (input: unknown) => {
 	race.join(asId(playerId), cleanName(name));
 });
 
+export const leaveRace = command('unchecked', async (input: unknown) => {
+	const { playerId } = (input ?? {}) as { playerId?: unknown };
+	race.leave(asId(playerId));
+});
+
 export const startRace = command(async () => {
 	race.startRace();
 });

@@ -106,23 +106,19 @@ button:disabled {
 	letter-spacing: 0.05em;
 	color: var(--blue-deep);
 }
-.roster ul {
-	list-style: none;
-	padding: 0;
-	margin: 0 0 1.5rem;
+/* the "in the water" list reuses the race kayak SVGs, in each player's color */
+.roster-kayaks {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.5rem;
+	align-items: flex-start;
+	gap: 0.5rem 1rem;
+	margin: 0.6rem 0 1.5rem;
 }
-.roster li {
-	background: white;
-	border: 2px solid var(--blue);
-	border-radius: 999px;
-	padding: 0.3rem 0.8rem;
-}
-.roster li.mine {
-	background: var(--blue);
-	color: white;
+.lobby-entry {
+	width: 96px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 .roster .empty {
 	color: var(--muted);
@@ -142,8 +138,14 @@ button:disabled {
 .ready {
 	margin-top: 0.5rem;
 }
-.start-btn {
+.lobby-actions {
+	display: flex;
+	gap: 0.6rem;
+	align-items: center;
 	margin-top: 1rem;
+}
+.leave-btn {
+	background: var(--red);
 }
 
 /* ---------------------------- Race screen ---------------------------- */
@@ -188,8 +190,8 @@ button:disabled {
 }
 .lane {
 	position: relative;
-	flex: 1 1 104px;
-	max-width: 104px;
+	flex: 1 1 156px;
+	max-width: 156px;
 	min-width: 0;
 	/* left border on every lane covers the left outer edge + the dividers;
 	   the last lane adds a right border to close the right outer edge.

@@ -16,6 +16,7 @@ const MAX_PLAYERS = 10;
 
 // --- shared state (the single source of truth) ----------------------------
 const players = new Map<string, Player>();
+let nextLane = 0; // monotonic so lane numbers stay unique even after players leave
 let phase: Phase = 'lobby';
 let countdown: number | null = null;
 let winnerId: string | null = null;
@@ -78,7 +79,7 @@ export function join(id: string, name: string): void {
 		players.set(id, {
 			id,
 			name,
-			lane: players.size,
+			lane: nextLane++,
 			progress: 0,
 			lastSide: null,
 			finishedAt: null
@@ -144,6 +145,25 @@ export function newRace(): void {
 		p.lastSide = null;
 		p.finishedAt = null;
 	}
+	phase = 'lobby';
+	countdown = null;
+	winnerId = null;
+	bump();
+}
+
+export function leave(id: string): void {
+	if (phase !== 'lobby') return; // you can only bow out before the race starts
+	if (players.delete(id)) bump();
+}
+
+/** Clear everyone back to an empty lobby (used by the hidden /reset route). */
+export function reset(): void {
+	if (countdownTimer) {
+		clearTimeout(countdownTimer);
+		countdownTimer = null;
+	}
+	players.clear();
+	nextLane = 0;
 	phase = 'lobby';
 	countdown = null;
 	winnerId = null;

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { Player, RaceState } from '$lib/types';
+	import Kayak from '$lib/Kayak.svelte';
+	import { colorFor } from '$lib/colors';
 
 	// Aliased to `game` because the `$state` rune below can't coexist with a
 	// variable literally named `state` (Svelte would read `$state` as a store).
@@ -7,12 +9,14 @@
 		state: game,
 		me,
 		onJoin,
-		onStart
+		onStart,
+		onLeave
 	}: {
 		state: RaceState;
 		me: Player | undefined;
 		onJoin: (name: string) => void;
 		onStart: () => void;
+		onLeave: () => void;
 	} = $props();
 
 	let name = $state('');
@@ -39,11 +43,13 @@
 		{#if game.players.length === 0}
 			<p class="empty">No kayaks yet — be the first to launch!</p>
 		{:else}
-			<ul>
+			<div class="roster-kayaks">
 				{#each game.players as p (p.id)}
-					<li class:mine={p.id === me?.id}>🛶 {p.name}{p.id === me?.id ? ' (you)' : ''}</li>
+					<div class="lobby-entry">
+						<Kayak color={colorFor(p.id)} name={p.name} mine={p.id === me?.id} />
+					</div>
 				{/each}
-			</ul>
+			</div>
 		{/if}
 	</div>
 
@@ -65,6 +71,13 @@
 	{/if}
 
 	{#if game.players.length > 0}
-		<button class="start-btn" onclick={onStart}>Start race</button>
+		<div class="lobby-actions">
+			<button class="start-btn" onclick={onStart} disabled={game.players.length < 2}>
+				Start race
+			</button>
+			{#if me}
+				<button class="leave-btn" onclick={onLeave}>Leave</button>
+			{/if}
+		</div>
 	{/if}
 </div>
