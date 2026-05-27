@@ -35,7 +35,7 @@
 	</p>
 
 	<div class="roster">
-		<h2>In the water ({game.players.length})</h2>
+		<h2>In the water ({game.players.length} / {game.max})</h2>
 		{#if game.players.length === 0}
 			<p class="empty">No kayaks yet — be the first to launch!</p>
 		{:else}
@@ -49,6 +49,8 @@
 
 	{#if me}
 		<p class="ready">You're in as <strong>{me.name}</strong>. Waiting for racers to line up…</p>
+	{:else if game.players.length >= game.max}
+		<p class="ready">The race is full ({game.max} kayaks). Hang tight for the next one!</p>
 	{:else}
 		<form class="join-form" onsubmit={submit}>
 			<input

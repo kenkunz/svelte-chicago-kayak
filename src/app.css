@@ -163,17 +163,41 @@ button:disabled {
 	position: absolute;
 	inset: 0;
 	display: flex;
+	justify-content: center; /* lanes are a fixed width and centered, not stretched */
 	background: linear-gradient(to top, var(--river-bottom), var(--river-top));
 	overflow: hidden;
 }
+/* subtle downstream "flow" so the water looks alive (you paddle against it) */
+.river::before {
+	content: '';
+	position: absolute;
+	inset: -40px 0 0 0;
+	background-image: repeating-linear-gradient(
+		to bottom,
+		rgba(255, 255, 255, 0) 0px,
+		rgba(255, 255, 255, 0.07) 13px,
+		rgba(255, 255, 255, 0) 26px
+	);
+	animation: river-flow 1.6s linear infinite;
+	pointer-events: none;
+}
+@keyframes river-flow {
+	to {
+		transform: translateY(26px);
+	}
+}
 .lane {
 	position: relative;
-	flex: 1;
+	flex: 1 1 104px;
+	max-width: 104px;
 	min-width: 0;
-	border-right: 2px dashed var(--lane-line);
+	/* left border on every lane covers the left outer edge + the dividers;
+	   the last lane adds a right border to close the right outer edge.
+	   (Can't use :first-child for the left edge — .finish-line is .river's first child.) */
+	border-left: 2px dashed var(--lane-line);
 }
 .lane:last-child {
-	border-right: none;
+	border-right: 2px dashed var(--lane-line);
 }
 .lane.mine {
 	background: rgba(255, 255, 255, 0.14);
@@ -198,38 +222,24 @@ button:disabled {
 	border-radius: 4px;
 }
 
-.kayak {
+/* positions a kayak in its lane by progress; the kayak art itself lives in Kayak.svelte */
+.kayak-pos {
 	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
+	left: 0;
+	right: 0;
 	display: flex;
-	flex-direction: column;
-	align-items: center;
-	transition: bottom 80ms linear;
+	justify-content: center;
+	transition: bottom 90ms linear;
 	will-change: bottom;
 }
-.kayak .boat {
-	font-size: clamp(1.2rem, 4vw, 2rem);
-	line-height: 1;
-}
-.kayak .tag {
-	max-width: 9ch;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	font-size: 0.7rem;
-	font-weight: 700;
-	color: var(--ink);
-	background: rgba(255, 255, 255, 0.85);
-	border-radius: 4px;
-	padding: 0 0.25rem;
-}
-.lane.mine .kayak .tag {
-	background: var(--red);
-	color: white;
-}
-.kayak.done .boat {
-	filter: drop-shadow(0 0 6px gold);
+
+@media (prefers-reduced-motion: reduce) {
+	.river::before {
+		animation: none;
+	}
+	.kayak-pos {
+		transition: none;
+	}
 }
 
 /* overlays drawn on top of the river (countdown + winner) */

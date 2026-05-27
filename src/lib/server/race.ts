@@ -11,6 +11,9 @@ import type { Player, RaceState, Side, Phase } from '$lib/types';
 /** Strokes required to cross the finish line. Tune for ~10-15s races. */
 const FINISH = 40;
 
+/** Cap the field so lanes don't get too narrow on the big screen. */
+const MAX_PLAYERS = 10;
+
 // --- shared state (the single source of truth) ----------------------------
 const players = new Map<string, Player>();
 let phase: Phase = 'lobby';
@@ -60,7 +63,7 @@ function scheduleBump(): void {
 /** A plain, serializable snapshot for the client. */
 export function getState(): RaceState {
 	const list = [...players.values()].sort((a, b) => a.lane - b.lane);
-	return { phase, players: list, countdown, winnerId, finish: FINISH, version };
+	return { phase, players: list, countdown, winnerId, finish: FINISH, max: MAX_PLAYERS, version };
 }
 
 // --- mutations (called by the remote commands) ----------------------------
@@ -71,6 +74,7 @@ export function join(id: string, name: string): void {
 	if (existing) {
 		existing.name = name; // a refresh/rejoin just updates the name
 	} else {
+		if (players.size >= MAX_PLAYERS) return; // race is full
 		players.set(id, {
 			id,
 			name,

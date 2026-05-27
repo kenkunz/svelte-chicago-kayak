@@ -25,6 +25,8 @@ export interface RaceState {
 	winnerId: string | null;
 	/** Strokes needed to win — lets the client size the river. */
 	finish: number;
+	/** Max players allowed (the field is capped so lanes stay legible). */
+	max: number;
 	/** Increments on every change; handy for debugging the live stream. */
 	version: number;
 }
