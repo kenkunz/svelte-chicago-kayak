@@ -205,21 +205,24 @@ button:disabled {
 
 .finish-line {
 	position: absolute;
-	inset: 0 0 auto 0;
+	inset: 1.4rem 0 auto 0; /* a strip of water sits above the line */
 	z-index: 5;
-	height: 1.6rem;
-	background: repeating-linear-gradient(90deg, #fff 0 10px, #111 10px 20px);
+	height: 2.5rem; /* taller band reads better than a thin stripe */
+	background-image: conic-gradient(#1b1b1b 25%, #fff 0 50%, #1b1b1b 0 75%, #fff 0);
+	background-size: 20px 20px; /* checkerboard */
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 .finish-line span {
 	background: var(--red);
 	color: white;
 	font-weight: 800;
-	font-size: 0.7rem;
-	padding: 0.1rem 0.5rem;
-	border-radius: 4px;
+	font-size: 1rem;
+	letter-spacing: 0.08em;
+	padding: 0.25rem 0.85rem;
+	border-radius: 6px;
 }
 
 /* positions a kayak in its lane by progress; the kayak art itself lives in Kayak.svelte */

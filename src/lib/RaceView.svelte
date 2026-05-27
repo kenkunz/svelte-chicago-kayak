@@ -18,7 +18,7 @@
 	{#each state.players as player (player.id)}
 		{@const frac = Math.min(1, player.progress / state.finish)}
 		<div class="lane" class:mine={player.id === myId}>
-			<div class="kayak-pos" style="bottom: calc({frac} * (100% - 150px))">
+			<div class="kayak-pos" style="bottom: calc({frac} * (100% - 195px))">
 				<Kayak
 					color={colorFor(player.id)}
 					name={player.name}
