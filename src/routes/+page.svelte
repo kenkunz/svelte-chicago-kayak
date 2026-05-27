@@ -33,6 +33,10 @@
 {/if}
 
 <svelte:boundary>
+	{#snippet pending()}
+		<div class="loading">Connecting to the river…</div>
+	{/snippet}
+
 	{#snippet failed(error: unknown, reset: () => void)}
 		<div class="loading">
 			<p>Lost the river ({error instanceof Error ? error.message : 'connection error'}).</p>
