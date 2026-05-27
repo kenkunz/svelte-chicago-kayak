@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import type { Player, RaceState } from '$lib/types';
 	import Kayak from '$lib/Kayak.svelte';
+	import Qr from '$lib/Qr.svelte';
 	import { colorFor } from '$lib/colors';
 
 	// Aliased to `game` because the `$state` rune below can't coexist with a
@@ -21,6 +23,11 @@
 
 	let name = $state('');
 
+	// The QR encodes whatever origin this page was opened at — the LAN IP:port on
+	// `dev --host`, or the deployed domain on Render. Open the big screen at that
+	// shareable URL (not localhost) so phones can reach it.
+	const joinUrl = $derived(page.url.origin);
+
 	function submit(e: SubmitEvent) {
 		e.preventDefault();
 		const trimmed = name.trim();
@@ -32,52 +39,59 @@
 </script>
 
 <div class="lobby">
-	<h1>🛶 Svelte Chicago Kayak Race</h1>
-	<p class="tagline">
-		Paddle up the Chicago River — alternate <kbd>◀</kbd> and <kbd>▶</kbd> as fast as you can. First kayak
-		to the finish wins!
-	</p>
+	<div class="lobby-main">
+		<h1>🛶 Svelte Chicago Kayak Race</h1>
+		<p class="tagline">
+			Paddle up the Chicago River — alternate <kbd>◀</kbd> and <kbd>▶</kbd> as fast as you can. First
+			kayak to the finish wins!
+		</p>
 
-	<div class="roster">
-		<h2>In the water ({game.players.length} / {game.max})</h2>
-		{#if game.players.length === 0}
-			<p class="empty">No kayaks yet — be the first to launch!</p>
+		<div class="roster">
+			<h2>In the water ({game.players.length} / {game.max})</h2>
+			{#if game.players.length === 0}
+				<p class="empty">No kayaks yet — be the first to launch!</p>
+			{:else}
+				<div class="roster-kayaks">
+					{#each game.players as p (p.id)}
+						<div class="lobby-entry">
+							<Kayak color={colorFor(p.id)} name={p.name} mine={p.id === me?.id} />
+						</div>
+					{/each}
+				</div>
+			{/if}
+		</div>
+
+		{#if me}
+			<p class="ready">You're in as <strong>{me.name}</strong>. Waiting for racers to line up…</p>
+		{:else if game.players.length >= game.max}
+			<p class="ready">The race is full ({game.max} kayaks). Hang tight for the next one!</p>
 		{:else}
-			<div class="roster-kayaks">
-				{#each game.players as p (p.id)}
-					<div class="lobby-entry">
-						<Kayak color={colorFor(p.id)} name={p.name} mine={p.id === me?.id} />
-					</div>
-				{/each}
+			<form class="join-form" onsubmit={submit}>
+				<input
+					type="text"
+					placeholder="Enter your name"
+					maxlength="20"
+					autocomplete="off"
+					bind:value={name}
+				/>
+				<button type="submit" disabled={!name.trim()}>Join</button>
+			</form>
+		{/if}
+
+		{#if game.players.length > 0}
+			<div class="lobby-actions">
+				<button class="start-btn" onclick={onStart} disabled={game.players.length < 2}>
+					Start race
+				</button>
+				{#if me}
+					<button class="leave-btn" onclick={onLeave}>Leave</button>
+				{/if}
 			</div>
 		{/if}
 	</div>
 
-	{#if me}
-		<p class="ready">You're in as <strong>{me.name}</strong>. Waiting for racers to line up…</p>
-	{:else if game.players.length >= game.max}
-		<p class="ready">The race is full ({game.max} kayaks). Hang tight for the next one!</p>
-	{:else}
-		<form class="join-form" onsubmit={submit}>
-			<input
-				type="text"
-				placeholder="Enter your name"
-				maxlength="20"
-				autocomplete="off"
-				bind:value={name}
-			/>
-			<button type="submit" disabled={!name.trim()}>Join</button>
-		</form>
-	{/if}
-
-	{#if game.players.length > 0}
-		<div class="lobby-actions">
-			<button class="start-btn" onclick={onStart} disabled={game.players.length < 2}>
-				Start race
-			</button>
-			{#if me}
-				<button class="leave-btn" onclick={onLeave}>Leave</button>
-			{/if}
-		</div>
-	{/if}
+	<div class="lobby-qr">
+		<Qr data={joinUrl} />
+		<p class="qr-caption">Scan to join 🛶</p>
+	</div>
 </div>
